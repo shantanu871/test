@@ -1,0 +1,21 @@
+---
+network_devices:
+  - host: cisco1
+    username: pyclass
+    password: somepass
+    device_type: cisco_ios
+    use_session_logs: False
+    ip_address:
+     - 10.1.1.1
+     - 10.1.1.2
+     - 10.1.2.3
+  - host: Juniper
+    username: Juniper
+    password: lab123
+    device_type: QFX_Junos
+    use_session_logs: False
+    ip_address:
+     - 10.2.3.4
+     - 10.2.3.5
+     - 10.2.3.6
+

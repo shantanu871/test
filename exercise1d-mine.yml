@@ -1,0 +1,7 @@
+---
+rtr1:
+ - host : cisco1.lasthop.io
+   username: pyclass
+   password: somepass
+   device_type: cisco_ios
+   user_session_logs: False

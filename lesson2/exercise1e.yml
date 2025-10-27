@@ -1,0 +1,34 @@
+---
+- name: Exercise1d
+  hosts: arista5
+  gather_facts: True
+  gather_subset: all
+  vars_files: my_vars.yml
+
+  tasks:
+    - name: Print arista5 ansible_facts
+      ansible.builtin.debug:
+        var: ansible_facts
+
+    - name: Print arista5 all ipv4 address
+      ansible.builtin.debug:
+        var: ansible_facts.net_all_ipv4_addresses
+
+    - name: Print arista2 ansibel network os
+      ansible.builtin.debug:
+        var: ansible_network_os
+
+    - name: Print arista5 ansible host
+      ansible.builtin.debug:
+        var: ansible_host
+
+    - name: Print arista5 desired OS version
+      ansible.builtin.debug:
+        var: desired_eos_version
+
+    - name: Create new variable device_hostname
+      ansible.builtin.set_fact:
+        device_hostname: "{{inventory_hostname}}.lab.io"
+    - name: Print new hostname
+      ansible.builtin.debug:
+        var: device_hostname
