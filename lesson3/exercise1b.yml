@@ -1,0 +1,33 @@
+---
+- name: Exercise3b
+  hosts: arista:cisco:juniper
+  gather_facts: False
+  tasks: 
+    - name: show ip arp for arista_eos
+      arista.eos.eos_command:
+        commands: show ip arp
+      register: show_ip_arp_eos
+      when: ansible_network_os == "eos"
+      tags: eos
+  
+
+    - name: show ip arp for cisoc_ios
+      cisco.ios.ios_command:
+        commands: show ip arp
+      register: show_ip_arp_cisco_ios
+      when: ansible_network_os == "ios"
+      tags: ios
+
+    - name: show arp for junos
+      junipernetworks.junos.junos_command:
+        commands: show arp
+      register: show_arp_junos
+      when: ansible_network_os == "junos"
+      tags: junos
+
+
+    - name: Print ip_arp_for_eos
+      ansible.builtin.debug:
+        var: show_ip_arp_eos
+      when: ansible_network_os == "eos"
+      tags: eos
