@@ -1,0 +1,57 @@
+---
+- name: Exercise 3
+  hosts: cisco1:cisco2
+  gather_facts: False
+ 
+  tasks:
+    - name: Gather LLDP neighbors
+      cisco.ios.ios_command:
+        commands: show lldp neighbors
+      register: lldp_output
+  
+    - name: Print LLDP neighbors
+      ansible.builtin.debug:
+        var: lldp_output
+
+    - name: Format of STDOUT
+      ansible.builtin.set_fact:
+        lldp: "{{lldp_output['stdout_lines'][0]}}"
+     
+    - name: Print in STDOUT
+      ansible.builtin.debug:
+        var: lldp 
+
+    - name: Format of STDOUT without 0
+      ansible.builtin.set_fact:
+        lldp_no_zero: "{{lldp_output['stdout_lines']}}"
+
+    - name: Print STDOUT non zero
+      ansible.builtin.debug:
+        var: lldp_no_zero
+
+
+    - name: Extract LLDP entry from list of lines
+      ansible.builtin.set_fact:
+        lldp_entry: "{{ item }}"
+      loop: "{{lldp}}"
+      when: "'twb-sf-hpsw1' in item"
+      
+    - name: Print extracted data 
+      ansible.builtin.debug:
+        var: lldp_entry
+
+
+    - name: Set LLDP variables from .split() output
+      ansible.builtin.set_fact:
+        remote_device: "{{lldp_entry.split()[0]}}"
+        local_intf: "{{lldp_entry.split()[1]}}"
+        remote_intf: "{{lldp_entry.split()[-1]}}"
+
+
+    - name: Display results
+      ansible.builtin.debug:
+        msg:
+          - "Remote Device: {{remote_device}}"
+          - "Local Intf: {{local_intf}}"
+          - "Remote_intf: {{remote_intf}}"
+
