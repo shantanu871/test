@@ -1,0 +1,10 @@
+---
+- name: Exercise4
+  hosts: arista
+  gather_facts: False
+
+  tasks:
+    - ansible.builtin.template:
+        src: arista.j2
+        dest: "./CFGS/{{inventory_hostname}}.txt"
+ 

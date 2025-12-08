@@ -1,0 +1,31 @@
+---
+- name: Configure IP address adn Ping for NX-OS
+  hosts: nxos
+  gather_facts: False
+
+  tasks:
+    - name: COnfigure L3 interface mode
+      cisco.nxos.nxos_interfaces:
+        config: 
+          - name: "{{ intf_name }}"
+            enabled: True
+            mode: layer3
+        state: merged
+   
+    - name: Configure IP address
+      cisco.nxos.nxos_l3_interfaces:
+        config:
+          - name: "{{ intf_name }}"
+            ipv4:
+              - address: "{{ intf_address }}/{{ intf_netmask }}"
+        state: merged
+
+    - name: Ping across interfaces
+      ansible.netcommon.net_ping:
+        dest: "{{ peer_ip }}"
+      register: output
+
+    - name: Verify 4 packets
+      ansible.builtin.assert:
+        that:
+          - output.packets_rx >=4 
