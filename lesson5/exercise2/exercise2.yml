@@ -1,0 +1,33 @@
+---
+- name: Global COnfig
+  hosts: cisco:arista:nxos:juniper
+  gather_facts: True
+
+  tasks:
+    - name: Global config
+      ansible.builtin.set_fact:
+        config: "{{ lookup('template', 'templates/{{ ansible_network_os }}/global.j2') }}"
+    
+    - name: Print the config
+      ansible.builtin.debug:
+        var: config.splitlines()
+
+    - name: Cisco config
+      cisco.ios.ios_config:
+        lines: "{{ config.splitlines() }}"
+      when: ansible_network_os == 'ios'
+
+    - name: GLobal Config EOS
+      arista.eos.eos_config:
+        lines: "{{ config.splitlines() }}"
+      when: ansible_network_os == 'eos'
+
+    - name: GLobal config NXOS
+      cisco.nxos.nxos_config: 
+        lines: "{{ config.splitlines() }}"
+      when: ansible_network_os == 'nxos'
+
+    - name: Globla config Junos
+      junipernetworks.junos.junos_config:
+        lines: "{{ config.splitlines() }}"
+      when: ansible_network_os == 'junos'
