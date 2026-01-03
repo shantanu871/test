@@ -1,0 +1,4 @@
+---
+- name: print IP address
+  ansible.builtin.debug:
+    msg: "IP ADDR: {{ item }} "
