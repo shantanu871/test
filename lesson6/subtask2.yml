@@ -1,0 +1,17 @@
+---
+- name: Task1
+  ansible.builtin.debug:
+    msg: "Hello 1"
+  tags: foo1
+
+- name: Task2
+  ansible.builtin.debug:
+    msg: "Hello 2"
+  tags: foo2
+
+- name: Hello3
+  ansible.builtin.debug:
+    msg: "Hello3"
+  tags: foo3
+
+

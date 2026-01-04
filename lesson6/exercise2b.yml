@@ -1,0 +1,8 @@
+---
+- name: Exercise2b
+  hosts: localhost
+  vars:
+    my_tasks: subtask1-2.yml
+  tasks:
+    - name: import wit5h variable  
+      ansible.builtin.import_tasks: "{{ my_tasks }}"

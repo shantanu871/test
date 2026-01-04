@@ -1,0 +1,16 @@
+---
+- name: Exercise 1c
+  hosts: localhost
+  tasks:
+    - name: Include with no tags
+      ansible.builtin.include_tasks: subtask2.yml
+
+    - name: with tags
+      ansible.builtin.include_tasks: subtask2.yml
+      tags:
+        - foo1
+        - foo2
+        - foo3
+    - name: always
+      ansible.builtin.include_tasks: subtask2.yml
+      tags: always
