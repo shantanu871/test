@@ -1,0 +1,6 @@
+---
+- name: Exercise 2c
+  hosts: localhost
+  tasks:
+    - name: Imprt with tags
+      ansible.builtin.import_tasks: subtask2.yml
