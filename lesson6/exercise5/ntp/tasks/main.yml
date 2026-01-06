@@ -1,0 +1,14 @@
+- name: IOS task
+  cisco.ios.ios_config:
+    src: ntp-default.j2
+  when: 'ansible_network_os == "ios"'
+
+- name: NX-OS task
+  cisco.nxos.nxos_config:
+    src: ntp-nxos.j2
+  when: 'ansible_network_os == "nxos"'
+
+- name: EOS
+  arista.eos.eos_config:
+    src: ntp-default.j2
+  when: 'ansible_network_os == "eos"'
