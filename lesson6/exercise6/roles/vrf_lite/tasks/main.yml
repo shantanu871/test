@@ -1,0 +1,14 @@
+---
+- name: Debugging- pull template in string fromat
+  ansible.builtin.set_fact:
+    vrf_config: "{{ lookup('template', 'vrf_lite.j2') }}"
+  tags: never
+  
+- name: convert in list
+  ansible.builtin.debug:
+    msg: "{{ vrf_config.splitlines() }}"
+  tags: never
+
+- name: push config
+  cisco.ios.ios_config:
+    src: vrf_lite.j2
