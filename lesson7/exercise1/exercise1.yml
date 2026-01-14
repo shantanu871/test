@@ -1,0 +1,44 @@
+---
+- name: Exercise1
+  hosts: nxos
+  gather_facts: False
+  tasks:
+    - name: Generate intf config
+      ansible.builtin.template:
+        src: interfaces.j2
+        dest: "./CFGS/{{ inventory_hostname }}/01-{{ inventory_hostname }}-intf.txt"
+
+    - name: Set bgp peer ip 
+      ansible.builtin.set_fact:
+        bgp_peer_ip: "{{ hostvars['nxos2']['eth1_4_ip_address'] }}"
+      when: "inventory_hostname == 'nxos1'"
+
+    - name: set bgp peer ip for nxos2
+      ansible.builtin.set_fact:
+        bgp_peer_ip: "{{ hostvars['nxos1']['eth1_4_ip_address'] }}"
+      when: "inventory_hostname == 'nxos2'"
+    
+    - name: Ganerate bgp config
+      ansible.builtin.template:
+        src: bgp.j2
+        dest: "./CFGS/{{ inventory_hostname }}/02-{{ inventory_hostname }}-bgp.txt"
+
+    - name: Collate configs
+      ansible.builtin.assemble:
+        src: "./CFGS/{{ inventory_hostname }}/" 
+        dest: "./CFGS/{{ inventory_hostname }}-config.txt"
+
+    - name: push configs
+      cisco.nxos.nxos_config:
+        src: "./CFGS/{{ inventory_hostname }}-config.txt"
+
+    - name: Verify state
+      cisco.nxos.nxos_command:
+        commands: show ip bgp summary
+      register: output
+      tags: bgp_out
+    
+    - name: show bgp session
+      ansible.builtin.debug:
+        var: output.stdout_lines[0]
+      tags: bgp_out

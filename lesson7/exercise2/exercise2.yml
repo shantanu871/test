@@ -1,0 +1,21 @@
+---
+- name: Exercise2
+  hosts: arista
+  gather_facts: False
+  tasks:
+    - block:
+      - name: Invalid pwd
+        vars:
+          ansible_ssh_pass: "foobar"
+        arista.eos.eos_config:
+          lines:
+            - " ip name-server {{ dns_server1 }}"
+            - " ip name-server {{ dns_server2 }}"
+      rescue:
+        - name: try this
+          vars:
+            ansible_ssh_pass: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
+          arista.eos.eos_config:
+            lines:
+              - "ip name-server {{ dns_server1 }}"
+              - "ip name-server {{ dns_server2 }}"
