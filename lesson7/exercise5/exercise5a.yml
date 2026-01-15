@@ -1,0 +1,34 @@
+---
+- name: Exercise5
+  hosts: nxos
+  gather_facts: false
+  
+  tasks:
+    - name: CLI
+      cisco.nxos.nxos_command:
+        commands: show lldp neighbors
+      register: output
+    
+    - name: Print
+      ansible.builtin.debug:
+        var: output.stdout[0]
+
+    - name: Splitlines
+      ansible.builtin.debug:
+        var: output.stdout[0].splitlines()
+    
+    - name: copy ot anothr variabel for parsing
+      ansible.builtin.set_fact:
+        output: "{{ output.stdout[0] }}"
+ 
+    - name: Print new variable
+      ansible.builtin.debug:
+        var: output.splitlines()
+
+    - name: parse using regex
+      ansible.builtin.set_fact:
+        lldp: "{{ output | regex_findall('^(\\S+)\\s+(Eth\\S+)\\s+\\d+\\s+\\S+\\s+(Ethernet\\S+)', multiline=True) }}"
+
+    - name: Print lldp
+      ansible.builtin.debug:
+        msg: "{{ lldp }}"

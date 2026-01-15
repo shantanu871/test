@@ -1,0 +1,36 @@
+---
+- name: Exercise 4a
+  hosts: nxos
+  gather_facts: false
+  
+  vars:
+    command: show version
+  collections:
+    - clay584.genie
+
+  tasks:
+  - name: CLI command
+    cisco.nxos.nxos_command:
+      commands: "{{ command }}"
+    register: output
+  
+  - name: Print
+    ansible.builtin.debug:
+      var: output
+  
+  - name: Parse
+    ansible.builtin.set_fact:
+      output_struct: "{{ output.stdout[0] | clay584.genie.parse_genie(command=command, os=ansible_network_os) }}"
+
+  - name: Print Parsed
+    ansible.builtin.debug:
+      msg: "{{ output_struct }}"
+  
+  - name: Extract software ver
+    ansible.builtin.debug:
+      msg:
+        - "-----------------------"
+        - "{{ inventory_hostname }}"
+        - "{{ output_struct.platform.software.system_version }}"
+
+
