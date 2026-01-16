@@ -1,0 +1,41 @@
+---
+- name: Exercise1
+  hosts: nxos
+  gather_facts: false
+
+  vars:
+    fsm_template: "cisco_nxos_show_lldp_neighbors.template"
+
+  tasks:
+    - name: Push CLI
+      cisco.nxos.nxos_command:
+        commands: show lldp neighbors
+      register: output
+
+    - name: Print cli
+      ansible.builtin.debug:
+        var: output.stdout[0]
+   
+    - name: Splitlines
+      ansible.builtin.debug:
+        msg: "{{ output.stdout[0].splitlines() }}"
+
+    - name: Parse the data
+      ansible.builtin.set_fact:
+        show_lldp: "{{ output.stdout[0] | parse_cli_textfsm(fsm_template) }}"
+
+    - name: Pront parsed data
+      ansible.builtin.debug:
+        msg: "{{ show_lldp }}"
+
+   
+    - name: extract
+      ansible.builtin.set_fact:
+        lldp_map: "{{ lldp_map | default({}) | combine({item['LOCAL_INTERFACE']: item['NEIGHBOR']}) }}"
+      loop: "{{ show_lldp }}"
+      loop_control:
+        label: "."
+
+    - name: Print
+      ansible.builtin.debug:
+        var: lldp_map
