@@ -1,0 +1,55 @@
+---
+- name: Exercise3
+  hosts: arista
+  gather_facts: false
+  
+  tasks:
+    - name: CLI command
+      arista.eos.eos_command:
+        commands: show mac address-table | json
+      register: output
+
+    - name: Prit RAW output
+      ansible.builtin.debug:
+        msg: "{{ output }}"
+   
+    - name: Print data as it is
+      ansible.builtin.debug:
+        var: output.stdout[0]
+
+    - name: Retrieve unicast switching table from data structure
+      ansible.builtin.set_fact:
+        switch_table: "{{ output.stdout[0].unicastTable.tableEntries }}"
+
+    - name: Print extracted data
+      ansible.builtin.debug:
+        var: switch_table
+
+    - name: Use MAP attribute
+      ansible.builtin.set_fact:
+        mac_list: "{{ switch_table | map(attribute='macAddress') | list }}"
+        intf_list: "{{ switch_table | map(attribute='interface') | list }}"
+
+    - name: Print MAP filter
+      ansible.builtin.debug:
+        msg: "{{ mac_list }}"
+
+    - name: Pritn MAP 2
+      ansible.builtin.debug:
+        msg: "{{ intf_list }}"
+        
+    - name: Create lis of lists using zip
+      ansible.builtin.set_fact:
+        switch_table_list: "{{ mac_list | zip(intf_list) | list }}" 
+
+    - name: Print list of lists
+      ansible.builtin.debug:
+        msg: "{{ switch_table_list }}"
+
+    - name: Convert to dict
+      ansible.builtin.set_fact:
+        switch_table_dict: "{{ dict(switch_table_list) }}"
+
+    - name: Print dict
+      ansible.builtin.debug:
+        var: switch_table_dict

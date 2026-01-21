@@ -1,0 +1,31 @@
+---
+
+- name: Exercise6g - here there be errors.
+  hosts: nxos
+  gather_facts: False
+  vars:
+    fsm_template: "cisco_nxos_show_lldp_neighbors.template"
+
+  tasks:
+    - name: Executing command
+      cisco.nxos.nxos_command:
+        commands: show lldp neighbors
+      register: output
+
+    - name: print raw 
+      ansible.builtin.debug:
+        msg: "{{ output }}"
+
+    - name: print stdout
+      ansible.builtin.debug:
+        msg: "{{ output.stdout }}"
+    - name: Print stdoput[0]
+      ansible.builtin.debug:
+        msg: "{{ output.stdout[0] }}"
+
+    - name: TextFSM conversion
+      ansible.builtin.set_fact:
+        show_lldp: "{{ output.stdout[0] | parse_cli_textfsm(fsm_template) }}"
+
+    - ansible.builtin.debug:
+        msg: "{{ show_lldp }}"

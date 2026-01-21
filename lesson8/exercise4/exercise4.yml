@@ -1,0 +1,35 @@
+---
+- name: Exercise4
+  hosts: arista
+  gather_facts: false
+  tasks:
+    - name: CLI
+      arista.eos.eos_command:
+        commands: show mac address-table | json
+      register: output
+    
+    - name: Print
+      ansible.builtin.debug:
+        msg: "{{ output.stdout[0] }}"
+
+    - name: Extract MAC
+      ansible.builtin.set_fact:
+        switch_table: "{{ output.stdout[0].unicastTable.tableEntries }}"
+
+    - name: Pritn extracted data
+      ansible.builtin.debug:
+        msg: "{{ switch_table }}"
+
+    - name: Loop over items
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ switch_table }}"
+
+    - name: loop for inside dict
+      ansible.builtin.set_fact:
+        switch_table_list: "{{ switch_table_list | default([]) + [item.macAddress] }}"
+      loop: "{{ switch_table }}"
+
+    - name: Print LIST
+      ansible.builtin.debug:
+        msg: "{{ switch_table_list }}"

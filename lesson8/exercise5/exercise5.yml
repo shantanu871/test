@@ -1,0 +1,83 @@
+---
+- name: NxOS1
+  hosts: nxos1
+  gather_facts: False
+  tasks:
+    - nxos_vlans:
+        config:
+          - vlan_id: 100
+            name: blue100
+          - vlan_id: 101
+            name: blue101
+
+        state: merged
+
+
+- name: NXOS2
+  hosts: nxos2
+  gather_facts: False
+  tasks: 
+    - nxos_vlans:
+        config:
+         - vlan_id: 200
+           name: blue200
+         - vlan_id: 201
+           name: blue201
+         - vlan_id: 101
+           name: blue101
+        state: merged
+
+
+- name: Disply JSON
+  hosts: nxos
+  gather_facts: False
+  tasks:
+    - name: Send JSON
+      cisco.nxos.nxos_command:
+        commands: show vlan | json
+      register: output
+
+    - name: Print JSON
+      ansible.builtin.debug:
+        msg: "{{ output.stdout[0] }}"
+
+    - name: Extract data
+      ansible.builtin.set_fact:
+        vlan_dict: "{{ output.stdout[0].TABLE_vlanbrief.ROW_vlanbrief }}"
+
+    - name: Print vlan dict
+      ansible.builtin.debug:
+        msg: "{{ vlan_dict }}"
+
+    - name: Use MAP for extraction vlan id
+      ansible.builtin.set_fact:
+        vlans: "{{ vlan_dict | map(attribute='vlanshowbr-vlanid') | list }}"
+  
+    - name: Print VLAN
+      ansible.builtin.debug:
+        msg: "{{ vlans }}"
+
+# Below is 5B
+#
+#
+
+    - name: COmmon vlan
+      ansible.builtin.debug:
+        msg: "COmmon VLANS: {{ vlans | intersect(hostvars['nxos2']['vlans']) }}"
+      when: inventory_hostname == 'nxos1'
+
+#Below is 5c
+
+    - name: Unique vlans
+      ansible.builtin.debug:
+        msg: "Unique vlans: {{ vlans | difference(hostvars['nxos2']['vlans']) }}"
+      when: inventory_hostname == 'nxos1'
+
+#Below is 5d
+#
+    - name: Unique VLANs nxos2
+      ansible.builtin.debug:
+        msg: "Unique VLANs nxos2: {{ vlans | difference(hostvars['nxos1']['vlans']) }}"
+      when: inventory_hostname == 'nxos2'
+   
+   
